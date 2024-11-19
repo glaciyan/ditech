@@ -1,0 +1,72 @@
+# Microchip I/O Physical Design Constraints file
+
+# User I/O Constraints file 
+
+# Version: 2024.2 2024.2.0.13
+
+# Family: SmartFusion2 , Die: M2S005 , Package: 144 TQ
+
+# Date generated: Tue Nov 19 12:06:03 2024 
+
+
+# 
+# User Locked I/O Bank Settings
+# 
+
+
+# 
+# Unlocked I/O Bank Settings
+# The I/O Bank Settings can be locked by directly editing this file
+# or by making changes in the I/O Attribute Editor
+# 
+
+
+# 
+# User Locked I/O settings
+# 
+
+set_io clk            \
+    -pinname 24       \
+    -fixed yes        \
+    -iostd LVCMOS25   \
+    -DIRECTION INPUT
+
+
+set_io led             \
+    -pinname 51        \
+    -fixed yes         \
+    -OUT_DRIVE 12      \
+    -DIRECTION OUTPUT
+
+
+set_io rst            \
+    -pinname 53       \
+    -fixed yes        \
+    -DIRECTION INPUT
+
+
+set_io tmp             \
+    -pinname 50        \
+    -fixed yes         \
+    -OUT_DRIVE 12      \
+    -DIRECTION OUTPUT
+
+
+
+# 
+# Dedicated Peripheral I/O Settings
+# 
+
+
+# 
+# Unlocked I/O settings
+# The I/Os in this section are unplaced or placed but are not locked
+# the other listed attributes have been applied
+# 
+
+
+#
+#Ports using Dedicated Pins
+
+#
+

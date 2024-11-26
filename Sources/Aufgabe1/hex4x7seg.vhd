@@ -2,6 +2,7 @@
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 USE ieee.std_logic_unsigned.ALL;
+USE work.lfsr_lib.ALL;
 
 ENTITY hex4x7seg IS
    GENERIC(RSTDEF: std_logic := '0');
@@ -15,34 +16,27 @@ ENTITY hex4x7seg IS
 END hex4x7seg;
 
 ARCHITECTURE struktur OF hex4x7seg IS
-    CONSTANT RES: std_logic_vector := "11111111111111";
+    -- x^14 + x^10 + x^6 + x^1 + 1
+    CONSTANT POLY: std_logic_vector := "100010001000011";
+    
+    CONSTANT RES: std_logic_vector := exec(poly => POLY, size => 1666);
+    -- CONSTANT RES: std_logic_vector := "00111111110011";
     
     SIGNAL reg: std_logic_vector(13 DOWNTO 0);
-    SIGNAL dff: std_logic;
+    SIGNAL en: std_logic;
 BEGIN
 p1: PROCESS (rst, clk) IS
 BEGIN
-    dp <= dff;
-
     IF rst=RSTDEF THEN
-        dff <= '0';
         reg <= (OTHERS => '1');
+        en <= '0';
     ELSIF rising_edge(clk) THEN
         IF reg=RES THEN
-            dff <= NOT dff;
+            en <= '1';
             reg <= (OTHERS => '1');
         ELSE
-            -- Modulo-2**14-Zaehler
-            -- x^14 + x^10 + x^6 + x^1 + 1
-            reg <= (reg(13) xor reg(7) xor reg(5) xor reg(0)) & reg(13 DOWNTO 1);
-            --reg(13 DOWNTO 7) <= reg(12 DOWNTO 6);    -- Shift bits 13 to 7
-            --reg(6) <= reg(5) xor reg(13);            -- Apply feedback for tap at position 6
-            --reg(5) <= reg(4);                        -- Shift bit 5
-            --reg(4) <= reg(3);                        -- Shift bit 4
-            --reg(3) <= reg(2);                        -- Shift bit 3
-            --reg(2) <= reg(1) xor reg(13);            -- Apply feedback for tap at position 2
-            --reg(1) <= reg(0) xor reg(13);            -- Apply feedback for tap at position 1
-            --reg(0) <= reg(13);                       -- Feedback from position 13
+            en <= '0';
+            reg <= lfsr(arg => reg, poly => POLY, din => '0');
         END IF;
     END IF;
     

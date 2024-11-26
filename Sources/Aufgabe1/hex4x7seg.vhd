@@ -18,19 +18,18 @@ END hex4x7seg;
 ARCHITECTURE struktur OF hex4x7seg IS
     -- x^14 + x^10 + x^6 + x^1 + 1
     CONSTANT POLY: std_logic_vector := "100010001000011";
-    
+
     CONSTANT RES: std_logic_vector := exec(poly => POLY, size => 1666);
     -- CONSTANT RES: std_logic_vector := "00111111110011";
-    
+
     SIGNAL reg: std_logic_vector(13 DOWNTO 0);
-    
+
     SIGNAL en: std_logic;
-    
+
     CONSTANT N: natural := 4;
     SIGNAL cnt: std_logic_vector(0 TO 1);
     SIGNAL cc: std_logic_vector(0 TO 3);
     SIGNAL mux: std_logic_vector(0 TO 3);
-    
 BEGIN
 -- 1-aus-4-Dekoder als Phasengenerator
 ena <= cc WHEN rst = NOT RSTDEF ELSE (OTHERS => '0');
@@ -70,9 +69,8 @@ BEGIN
     IF rst=RSTDEF THEN
         reg <= (OTHERS => '1');
         en <= '0';
-        dp <= '0';
     ELSIF rising_edge(clk) THEN
-        -- Modulo 2^14 Zähler
+        -- Modulo 2^14 Zï¿½hler
         IF reg=RES THEN
             en <= '1';
             reg <= (OTHERS => '1');
@@ -88,7 +86,7 @@ BEGIN
     IF rst=RSTDEF THEN
         cnt <= (OTHERS => '0');
     ELSIF rising_edge(clk) THEN
-        -- Modulo-4-Zähler
+        -- Modulo-4-Zï¿½hler
         IF en = '1' THEN
             IF cnt = N-1 THEN
                 cnt <= (OTHERS => '0');

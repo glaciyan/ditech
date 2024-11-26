@@ -63,14 +63,15 @@ WITH cnt SELECT
            "0001" WHEN "11",
            "0000" WHEN OTHERS;
 
+dp <= '1' WHEN dpin = cc ELSE '0';
+
 p1: PROCESS (rst, clk) IS
 BEGIN
     IF rst=RSTDEF THEN
         reg <= (OTHERS => '1');
         en <= '0';
-        cnt <= (OTHERS => '0');
+        dp <= '0';
     ELSIF rising_edge(clk) THEN
-    
         -- Modulo 2^14 Zähler
         IF reg=RES THEN
             en <= '1';
@@ -79,7 +80,14 @@ BEGIN
             en <= '0';
             reg <= lfsr(arg => reg, poly => POLY, din => '0');
         END IF;
-        
+    END IF;
+END PROCESS;
+
+counter: PROCESS (rst, clk) IS
+BEGIN
+    IF rst=RSTDEF THEN
+        cnt <= (OTHERS => '0');
+    ELSIF rising_edge(clk) THEN
         -- Modulo-4-Zähler
         IF en = '1' THEN
             IF cnt = N-1 THEN
@@ -89,21 +97,5 @@ BEGIN
             END IF;
         END IF;
     END IF;
-    
-    
-    -- 1-aus-4-Multiplexer
-    IF dpin = cc THEN
-        dp <= '1';
-    ELSE
-        dp <= '0';
-    END IF;
-    
-    IF reg(1) = '0' THEN
-        
-    END IF;
-
-   -- 7-aus-4-Dekoder
-
-   -- 1-aus-4-Multiplexer
 END PROCESS;
 END struktur;

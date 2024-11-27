@@ -34,9 +34,14 @@ BEGIN
 -- 1-aus-4-Dekoder als Phasengenerator
 ena <= cc WHEN rst = NOT RSTDEF ELSE (OTHERS => '0');
 
--- TODO alle daten verwenden
 -- 7-aus-4-4bit mux
-mux <= data(3 DOWNTO 0) WHEN cnt(1) = '1' ELSE data(7 DOWNTO 4);
+-- mux <= data(3 DOWNTO 0) WHEN cnt(1) = '1' ELSE data(7 DOWNTO 4);
+WITH cnt SELECT
+    mux <= data(15 DOWNTO 12) WHEN "00",
+           data(11 DOWNTO 8)  WHEN "01",
+           data(7 DOWNTO 4)   WHEN "10",
+           data(3 DOWNTO 0)   WHEN "11",
+           "0000"             WHEN OTHERS;
 
 -- 7-aus-4 Decoder
 WITH mux SELECT
@@ -66,9 +71,12 @@ WITH cnt SELECT
            "0001" WHEN "11",
            "0000" WHEN OTHERS;
 
--- TODO: vergleich optimierbar
 -- 1-aus-4 Mux
-dp <= '1' WHEN dpin = cc ELSE '0';
+-- dp <= '1' WHEN dpin = cc ELSE '0';
+dp <= (dpin(0) and cc(0)) or 
+      (dpin(1) and cc(1)) or
+      (dpin(2) and cc(2)) or
+      (dpin(3) and cc(3));
 
 -- Frequenzteiler
 p1: PROCESS (rst, clk) IS

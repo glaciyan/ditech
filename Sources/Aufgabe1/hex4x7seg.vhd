@@ -19,7 +19,7 @@ ARCHITECTURE struktur OF hex4x7seg IS
     -- x^14 + x^10 + x^6 + x^1 + 1
     CONSTANT POLY: std_logic_vector := "100010001000011";
 
-    CONSTANT RES: std_logic_vector := exec(poly => POLY, size => 1666);
+    CONSTANT RES: std_logic_vector := exec(poly => POLY, size => 16383);
     -- CONSTANT RES: std_logic_vector := "00111111110011";
 
     SIGNAL reg: std_logic_vector(13 DOWNTO 0);
@@ -34,27 +34,31 @@ BEGIN
 -- 1-aus-4-Dekoder als Phasengenerator
 ena <= cc WHEN rst = NOT RSTDEF ELSE (OTHERS => '0');
 
-mux <= data(3 DOWNTO 0) WHEN cnt(1) = '0' ELSE data(7 DOWNTO 4);
+-- TODO alle daten verwenden
+-- 7-aus-4-4bit mux
+mux <= data(3 DOWNTO 0) WHEN cnt(1) = '1' ELSE data(7 DOWNTO 4);
 
+-- 7-aus-4 Decoder
 WITH mux SELECT
-    seg <= "1111110" WHEN "0000", -- 0
-           "0110000" WHEN "0001", -- 1
-           "1101101" WHEN "0010", -- 2
-           "1111001" WHEN "0011", -- 3
-           "0110011" WHEN "0100", -- 4
-           "1011011" WHEN "0101", -- 5
-           "1011111" WHEN "0110", -- 6
-           "1110000" WHEN "0111", -- 7
+    seg <= "0111111" WHEN "0000", -- 0
+           "0000110" WHEN "0001", -- 1
+           "1011011" WHEN "0010", -- 2
+           "1001111" WHEN "0011", -- 3
+           "1100110" WHEN "0100", -- 4
+           "1101101" WHEN "0101", -- 5
+           "1111101" WHEN "0110", -- 6
+           "0000111" WHEN "0111", -- 7
            "1111111" WHEN "1000", -- 8
-           "1111011" WHEN "1001", -- 9
+           "1101111" WHEN "1001", -- 9
            "1110111" WHEN "1010", -- A
-           "0011111" WHEN "1011", -- B
-           "1001110" WHEN "1100", -- C
-           "0111101" WHEN "1101", -- D
-           "1001111" WHEN "1110", -- E
-           "1000111" WHEN "1111", -- F
+           "1111100" WHEN "1011", -- B
+           "0111001" WHEN "1100", -- C
+           "1011110" WHEN "1101", -- D
+           "1111001" WHEN "1110", -- E
+           "1110001" WHEN "1111", -- F
            "0000000" WHEN OTHERS;
 
+-- 1-aus-4 Decoder
 WITH cnt SELECT
     cc <= "1000" WHEN "00",
            "0100" WHEN "01",
@@ -62,37 +66,53 @@ WITH cnt SELECT
            "0001" WHEN "11",
            "0000" WHEN OTHERS;
 
+-- TODO: vergleich optimierbar
+-- 1-aus-4 Mux
 dp <= '1' WHEN dpin = cc ELSE '0';
 
+-- Frequenzteiler
 p1: PROCESS (rst, clk) IS
 BEGIN
     IF rst=RSTDEF THEN
         reg <= (OTHERS => '1');
         en <= '0';
     ELSIF rising_edge(clk) THEN
-        -- Modulo 2^14 Z�hler
+        -- Modulo 2^14 Zaehler
         IF reg=RES THEN
             en <= '1';
             reg <= (OTHERS => '1');
         ELSE
             en <= '0';
+            -- TODO: mit eigenen counter ersetzen
+            -- x^14 + x^10 + x^6 + x^1 + 1
             reg <= lfsr(arg => reg, poly => POLY, din => '0');
+
+            --reg(13) <= reg(12);
+            --reg(12) <= reg(11);
+            --reg(11) <= reg(10);
+            --reg(10) <= reg(9) XOR reg(13);
+            --reg(9) <= reg(8);
+            --reg(8) <= reg(7);
+            --reg(7) <= reg(6);
+            --reg(6) <= reg(5) XOR reg(13);
+            --reg(5) <= reg(4);
+            --reg(4) <= reg(3);
+            --reg(3) <= reg(2);
+            --reg(2) <= reg(1);
+            --reg(1) <= reg(0) XOR reg(13);
+            --reg(0) <= reg(13);
         END IF;
     END IF;
 END PROCESS;
 
+-- Modulo-4-Zaehler
 counter: PROCESS (rst, clk) IS
 BEGIN
     IF rst=RSTDEF THEN
         cnt <= (OTHERS => '0');
     ELSIF rising_edge(clk) THEN
-        -- Modulo-4-Z�hler
         IF en = '1' THEN
-            IF cnt = N-1 THEN
-                cnt <= (OTHERS => '0');
-            ELSE
-                cnt <= cnt + 1;
-            END IF;
+            cnt <= cnt + 1;
         END IF;
     END IF;
 END PROCESS;

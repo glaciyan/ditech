@@ -39,8 +39,8 @@ ena <= cc WHEN rst = NOT RSTDEF ELSE (OTHERS => '0');
 WITH cnt SELECT
     mux <= data(15 DOWNTO 12) WHEN "00",
            data(11 DOWNTO 8)  WHEN "01",
-           data(7 DOWNTO 4)   WHEN "10",
-           data(3 DOWNTO 0)   WHEN "11",
+           data(7 DOWNTO 4)   WHEN "11",
+           data(3 DOWNTO 0)   WHEN "10",
            "0000"             WHEN OTHERS;
 
 -- 7-aus-4 Decoder
@@ -67,8 +67,8 @@ WITH mux SELECT
 WITH cnt SELECT
     cc <= "1000" WHEN "00",
            "0100" WHEN "01",
-           "0010" WHEN "10",
-           "0001" WHEN "11",
+           "0010" WHEN "11",
+           "0001" WHEN "10",
            "0000" WHEN OTHERS;
 
 -- 1-aus-4 Mux
@@ -104,7 +104,15 @@ BEGIN
         cnt <= (OTHERS => '0');
     ELSIF rising_edge(clk) THEN
         IF en = '1' THEN
-            cnt <= cnt + 1;
+            IF cnt="00" THEN
+                cnt <= "01"; -- 1
+            ELSIF cnt = "01" THEN
+                cnt <= "11"; -- 2
+            ELSIF cnt = "11" THEN
+                cnt <= "10"; -- 3
+            ELSE
+                cnt <= "00"; -- 0
+            END IF;
         END IF;
     END IF;
 END PROCESS;

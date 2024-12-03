@@ -73,10 +73,10 @@ WITH cnt SELECT
 
 -- 1-aus-4 Mux
 -- dp <= '1' WHEN dpin = cc ELSE '0';
-dp <= (dpin(0) and cc(0)) or 
-      (dpin(1) and cc(1)) or
-      (dpin(2) and cc(2)) or
-      (dpin(3) and cc(3));
+dp <= (dpin(0) and cc(3)) or 
+      (dpin(1) and cc(2)) or
+      (dpin(2) and cc(1)) or
+      (dpin(3) and cc(0));
 
 -- Frequenzteiler
 p1: PROCESS (rst, clk) IS

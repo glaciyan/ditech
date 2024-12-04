@@ -19,9 +19,6 @@ ARCHITECTURE struktur OF hex4x7seg IS
     -- x^14 + x^10 + x^6 + x^1 + 1
     CONSTANT POLY: std_logic_vector := "100010001000011";
 
-    -- CONSTANT RES: std_logic_vector := exec(poly => POLY, size => 16383);
-    -- CONSTANT RES: std_logic_vector(13 DOWNTO 0) := "11110111011110";
-
     SIGNAL reg: std_logic_vector(13 DOWNTO 0);
 
     SIGNAL en: std_logic;
@@ -35,7 +32,6 @@ BEGIN
 ena <= cc WHEN rst = NOT RSTDEF ELSE (OTHERS => '0');
 
 -- 7-aus-4-4bit mux
--- mux <= data(3 DOWNTO 0) WHEN cnt(1) = '1' ELSE data(7 DOWNTO 4);
 WITH cnt SELECT
     mux <= data(15 DOWNTO 12) WHEN "00",
            data(11 DOWNTO 8)  WHEN "01",
@@ -66,13 +62,12 @@ WITH mux SELECT
 -- 1-aus-4 Decoder
 WITH cnt SELECT
     cc <= "1000" WHEN "00",
-           "0100" WHEN "01",
-           "0010" WHEN "11",
-           "0001" WHEN "10",
-           "0000" WHEN OTHERS;
+          "0100" WHEN "01",
+          "0010" WHEN "11",
+          "0001" WHEN "10",
+          "0000" WHEN OTHERS;
 
 -- 1-aus-4 Mux
--- dp <= '1' WHEN dpin = cc ELSE '0';
 dp <= (dpin(0) and cc(3)) or 
       (dpin(1) and cc(2)) or
       (dpin(2) and cc(1)) or
@@ -86,10 +81,13 @@ BEGIN
         en <= '0';
     ELSIF rising_edge(clk) THEN
         -- Modulo 2^14 Zaehler
+        -- x^14 + x^10 + x^6 + x^1 + 1
         reg <= lfsr(arg => reg, poly => POLY, din => '0');
 
         -- 11110111011110
+        -- 13 and 0 set the EN pin on the "en" SLE, getting rid of that critical path
         IF reg(13) = '1' and reg(0) = '0' THEN
+            -- split up new critical path from AND-gates, attempt was to connect to synchronous load
             IF (reg(12) and reg(11) and not reg(9) and not reg(5)) = '1' THEN
                 IF ((reg(10) and reg(8) and reg(7) and reg(6)) and (reg(4) and reg(3) and reg(2) and reg(1))) = '1' THEN
                     en <= '1';
@@ -111,15 +109,17 @@ BEGIN
         cnt <= (OTHERS => '0');
     ELSIF rising_edge(clk) THEN
         IF en = '1' THEN
-            IF cnt="00" THEN
-                cnt <= "01"; -- 1
-            ELSIF cnt = "01" THEN
-                cnt <= "11"; -- 2
-            ELSIF cnt = "11" THEN
-                cnt <= "10"; -- 3
-            ELSE
-                cnt <= "00"; -- 0
-            END IF;
+            -- gray code counter
+            CASE cnt IS
+                WHEN "00" =>
+                    cnt <= "01";
+                WHEN "01" =>
+                    cnt <= "11";
+                WHEN "11" =>
+                    cnt <= "10";
+                WHEN "10" =>
+                    cnt <= "00";
+            END CASE;
         END IF;
     END IF;
 END PROCESS;

@@ -19,11 +19,10 @@ ARCHITECTURE struktur OF hex4x7seg IS
     -- x^14 + x^10 + x^6 + x^1 + 1
     CONSTANT POLY: std_logic_vector := "100010001000011";
 
-    CONSTANT RES: std_logic_vector := exec(poly => POLY, size => 16383);
-    -- CONSTANT RES: std_logic_vector := "00111111110011";
+    -- CONSTANT RES: std_logic_vector := exec(poly => POLY, size => 16383);
+    CONSTANT RES: std_logic_vector(13 DOWNTO 0) := "11110111011110";
 
     SIGNAL reg: std_logic_vector(13 DOWNTO 0);
-    SIGNAL high_buff: std_logic;
 
     SIGNAL en: std_logic;
 
@@ -85,30 +84,20 @@ BEGIN
     IF rst=RSTDEF THEN
         reg <= (OTHERS => '1');
         en <= '0';
-        high_buff <= '0';
     ELSIF rising_edge(clk) THEN
         -- Modulo 2^14 Zaehler
-        IF reg=RES THEN
-            en <= '1';
-            reg <= (OTHERS => '1');
-        ELSE
-            en <= '0';
-            -- x^14 + x^10 + x^6 + x^1 + 1
-            -- reg <= lfsr(arg => reg, poly => POLY, din => '0');
-            reg(13) <= reg(12);
-            reg(12) <= reg(11);
-            reg(11) <= reg(10);
-            reg(10) <= reg(9) XOR reg(13);
-            reg(9) <= reg(8);
-            reg(8) <= reg(7);
-            reg(7) <= reg(6);
-            reg(6) <= reg(5) XOR reg(13);
-            reg(5) <= reg(4);
-            reg(4) <= reg(3);
-            reg(3) <= reg(2);
-            reg(2) <= reg(1);
-            reg(1) <= reg(0) XOR reg(13);
-            reg(0) <= reg(13);
+        reg <= lfsr(arg => reg, poly => POLY, din => '0');
+        
+        -- 11110111011110
+        IF reg(13) = '1' and reg(0) = '0' THEN
+            IF reg(12 DOWNTO 1) = RES(12 DOWNTO 1) THEN
+                IF reg(13) = '1' and reg(0) = '0' THEN
+                    en <= '1';
+                    reg <= (OTHERS => '1');
+                END IF;
+            ELSE
+                en <= '0';
+            END IF;
         END IF;
     END IF;
 END PROCESS;

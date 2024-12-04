@@ -87,7 +87,7 @@ BEGIN
     ELSIF rising_edge(clk) THEN
         -- Modulo 2^14 Zaehler
         reg <= lfsr(arg => reg, poly => POLY, din => '0');
-        
+
         -- 11110111011110
         IF reg(13) = '1' and reg(0) = '0' THEN
             IF reg(12) and reg(11) and not reg(9) and not reg(5) THEN

@@ -23,6 +23,7 @@ ARCHITECTURE struktur OF hex4x7seg IS
     -- CONSTANT RES: std_logic_vector := "00111111110011";
 
     SIGNAL reg: std_logic_vector(13 DOWNTO 0);
+    SIGNAL high_buff: std_logic;
 
     SIGNAL en: std_logic;
 
@@ -84,6 +85,7 @@ BEGIN
     IF rst=RSTDEF THEN
         reg <= (OTHERS => '1');
         en <= '0';
+        high_buff <= '0';
     ELSIF rising_edge(clk) THEN
         -- Modulo 2^14 Zaehler
         IF reg=RES THEN

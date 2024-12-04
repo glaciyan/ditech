@@ -20,7 +20,7 @@ ARCHITECTURE struktur OF hex4x7seg IS
     CONSTANT POLY: std_logic_vector := "100010001000011";
 
     -- CONSTANT RES: std_logic_vector := exec(poly => POLY, size => 16383);
-    CONSTANT RES: std_logic_vector(13 DOWNTO 0) := "11110111011110";
+    -- CONSTANT RES: std_logic_vector(13 DOWNTO 0) := "11110111011110";
 
     SIGNAL reg: std_logic_vector(13 DOWNTO 0);
 

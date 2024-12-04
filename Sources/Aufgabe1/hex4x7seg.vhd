@@ -92,7 +92,21 @@ BEGIN
         ELSE
             en <= '0';
             -- x^14 + x^10 + x^6 + x^1 + 1
-            reg <= lfsr(arg => reg, poly => POLY, din => '0');
+            -- reg <= lfsr(arg => reg, poly => POLY, din => '0');
+            reg(13) <= reg(12);
+            reg(12) <= reg(11);
+            reg(11) <= reg(10);
+            reg(10) <= reg(9) XOR reg(13);
+            reg(9) <= reg(8);
+            reg(8) <= reg(7);
+            reg(7) <= reg(6);
+            reg(6) <= reg(5) XOR reg(13);
+            reg(5) <= reg(4);
+            reg(4) <= reg(3);
+            reg(3) <= reg(2);
+            reg(2) <= reg(1);
+            reg(1) <= reg(0) XOR reg(13);
+            reg(0) <= reg(13);
         END IF;
     END IF;
 END PROCESS;

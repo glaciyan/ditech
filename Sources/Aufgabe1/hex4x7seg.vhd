@@ -119,6 +119,8 @@ BEGIN
                     cnt <= "10";
                 WHEN "10" =>
                     cnt <= "00";
+                WHEN OTHERS =>
+                    cnt <= "00";
             END CASE;
         END IF;
     END IF;

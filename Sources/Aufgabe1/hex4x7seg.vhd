@@ -87,9 +87,9 @@ BEGIN
         -- 11110111011110
         -- 13 and 0 set the EN pin on the "en" SLE, getting rid of that critical path
         -- this makes the "en" signal too long, but just enough cycles for cnt to wrap around the correct amount
-        IF reg(13) = '1' and reg(0) = '0' THEN
+        IF reg(13) = '1' and reg(2) = '1' THEN
             IF (reg(12) and reg(11) and not reg(9) and not reg(5)) = '1' THEN
-                IF ((reg(10) and reg(8) and reg(7) and reg(6)) and (reg(4) and reg(3) and reg(2) and reg(1))) = '1' THEN
+                IF ((reg(10) and reg(8) and reg(7) and reg(6)) and (reg(4) and reg(3) and not reg(0) and reg(1))) = '1' THEN
                     en <= '1';
                     reg <= (OTHERS => '1');
                 ELSE

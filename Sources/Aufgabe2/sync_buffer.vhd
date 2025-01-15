@@ -50,14 +50,14 @@ begin
 
         -- Hysterese
         IF en = '1' THEN
-            IF din = '0' THEN
+            IF dff2 = '0' THEN
                 IF cnt = 0 THEN
                     state <= '0';
                 ELSE
                     cnt <= cnt - 1;
                 END IF;
             ELSE
-                if cnt = N - 1 THEN
+                if cnt = N THEN
                     state <= '1';
                 ELSE
                     cnt <= cnt + 1;

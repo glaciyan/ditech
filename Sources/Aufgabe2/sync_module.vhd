@@ -25,9 +25,21 @@ END sync_module;
 -- zur Entity sync_module implementiert werden.
 --
 architecture struktur of sync_module is
+    COMPONENT sync_buffer is
+        GENERIC(RSTDEF: std_logic);
+        PORT(rst:    IN  std_logic;  -- reset, RSTDEF active
+             clk:    IN  std_logic;  -- clock, rising edge
+             en:     IN  std_logic;  -- enable, high active
+             swrst:  IN  std_logic;  -- software reset, RSTDEF active
+             din:    IN  std_logic;  -- data bit, input
+             dout:   OUT std_logic;  -- data bit, output
+             redge:  OUT std_logic;  -- rising  edge on din detected
+             fedge:  OUT std_logic); -- falling edge on din detected
+    END COMPONENT;
+
     SIGNAL reg: std_logic_vector(15 DOWNTO 0);
 begin
-    btn1_sync: work.sync_buffer
+    btn1_sync: sync_buffer
     GENERIC MAP (RSTDEF => RSTDEF)
     PORT MAP (
         rst    => rst,
@@ -36,11 +48,11 @@ begin
         swrst  => swrst,
         din    => BTN1,
         dout   => open,
-        redge  => load,
-        fedge  => open
+        redge  => open,
+        fedge  => inc
     );
 
-    btn2_sync: work.sync_buffer
+    btn2_sync: sync_buffer
     GENERIC MAP (RSTDEF => RSTDEF)
     PORT MAP (
         rst    => rst,
@@ -49,11 +61,11 @@ begin
         swrst  => swrst,
         din    => BTN2,
         dout   => open,
-        redge  => load,
-        fedge  => open
+        redge  => open,
+        fedge  => dec
     );
 
-    btn3_sync: work.sync_buffer
+    btn3_sync: sync_buffer
     GENERIC MAP (RSTDEF => RSTDEF)
     PORT MAP (
         rst    => rst,
@@ -68,10 +80,10 @@ begin
 
     p1: process(clk, rst)
     begin
-        if rst = rst_val then
+        if rst = RSTDEF then
             reg <= (OTHERS => '0');
         elsif rising_edge(clk) then
-            reg <= ('0' & reg(13 DOWNTO 0)) + 1;
+            reg <= ('0' & reg(14 DOWNTO 0)) + 1;
         end if;
     end process p1;
 

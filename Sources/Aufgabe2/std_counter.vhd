@@ -13,7 +13,7 @@ ENTITY std_counter IS
         dec:   IN  std_logic;  -- decrement,       high active
         load:  IN  std_logic;  -- load value,      high active
         swrst: IN  std_logic;  -- software reset,  RSTDEF active
-        cout:  OUT std_logic;  -- carry,           high active        
+        cout:  OUT std_logic;  -- carry,           high active
         din:   IN  std_logic_vector(CNTLEN-1 DOWNTO 0);
         dout:  OUT std_logic_vector(CNTLEN-1 DOWNTO 0));
 END std_counter;
@@ -42,3 +42,32 @@ END std_counter;
 -- Im Rahmen der 2. Aufgabe soll hier die Architekturbeschreibung
 -- zur Entity std_counter implementiert werden
 --
+architecture struktur of std_counter is
+    SIGNAL cnt: std_logic_vector(CNTLEN DOWNTO 0); -- carry + dout
+begin
+
+cout <= cnt(CNTLEN);
+dout <= cnt(CNTLEN-1 DOWNTO 0);
+
+p1: process(clk, rst)
+begin
+    if rst = RSTDEF then
+        cnt <= (OTHERS => '0');
+    elsif rising_edge(clk) then
+        if en = '1' then
+            if load = '1' then
+                cnt <= '0' & din;
+            elsif dec = '1' then
+                cnt <= ('0' & cnt(CNTLEN-1 DOWNTO 0)) - 1;
+            elsif inc = '1' then
+                cnt <= ('0' & cnt(CNTLEN-1 DOWNTO 0)) + 1;
+            end if;
+        end if;
+
+        if swrst = RSTDEF then
+            cnt <= (OTHERS => '0');
+        end if;
+    end if;
+end process;
+
+end architecture;

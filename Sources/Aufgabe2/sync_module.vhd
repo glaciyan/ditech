@@ -35,9 +35,9 @@ begin
         en     => reg(15),
         swrst  => swrst,
         din    => BTN1,
-        dout   => open,          -- No need for intermediate signal
-        redge  => load,          -- Directly connect to load
-        fedge  => open           -- No need for intermediate signal
+        dout   => open,
+        redge  => load,
+        fedge  => open
     );
 
     btn2_sync: work.sync_buffer
@@ -48,9 +48,9 @@ begin
         en     => reg(15),
         swrst  => swrst,
         din    => BTN2,
-        dout   => open,          -- No need for intermediate signal
-        redge  => load,          -- Directly connect to load
-        fedge  => open           -- No need for intermediate signal
+        dout   => open,
+        redge  => load,
+        fedge  => open
     );
 
     btn3_sync: work.sync_buffer
@@ -61,9 +61,9 @@ begin
         en     => reg(15),
         swrst  => swrst,
         din    => BTN3,
-        dout   => open,          -- No need for intermediate signal
-        redge  => load,          -- Directly connect to load
-        fedge  => open           -- No need for intermediate signal
+        dout   => open,
+        redge  => load,
+        fedge  => open
     );
 
     p1: process(clk, rst)

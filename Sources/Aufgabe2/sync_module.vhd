@@ -16,7 +16,63 @@ ENTITY sync_module IS
         inc:   OUT std_logic); -- increment, high active
 END sync_module;
 
+-- requires
+-- - 3  sync buffers
+-- - 1 freq splitter
+
 --
 -- Im Rahmen der 2. Aufgabe soll hier die Architekturbeschreibung
 -- zur Entity sync_module implementiert werden.
 --
+architecture struktur of sync_module is
+    SIGNAL reg: std_logic_vector(15 DOWNTO 0);
+begin
+    btn1_sync: work.sync_buffer
+    GENERIC MAP (RSTDEF => RSTDEF)
+    PORT MAP (
+        rst    => rst,
+        clk    => clk,
+        en     => reg(15),
+        swrst  => swrst,
+        din    => BTN1,
+        dout   => open,          -- No need for intermediate signal
+        redge  => load,          -- Directly connect to load
+        fedge  => open           -- No need for intermediate signal
+    );
+
+    btn2_sync: work.sync_buffer
+    GENERIC MAP (RSTDEF => RSTDEF)
+    PORT MAP (
+        rst    => rst,
+        clk    => clk,
+        en     => reg(15),
+        swrst  => swrst,
+        din    => BTN2,
+        dout   => open,          -- No need for intermediate signal
+        redge  => load,          -- Directly connect to load
+        fedge  => open           -- No need for intermediate signal
+    );
+
+    btn3_sync: work.sync_buffer
+    GENERIC MAP (RSTDEF => RSTDEF)
+    PORT MAP (
+        rst    => rst,
+        clk    => clk,
+        en     => reg(15),
+        swrst  => swrst,
+        din    => BTN3,
+        dout   => open,          -- No need for intermediate signal
+        redge  => load,          -- Directly connect to load
+        fedge  => open           -- No need for intermediate signal
+    );
+
+    p1: process(clk, rst)
+    begin
+        if rst = rst_val then
+            reg <= (OTHERS => '0');
+        elsif rising_edge(clk) then
+            reg <= ('0' & reg(13 DOWNTO 0)) + 1;
+        end if;
+    end process p1;
+
+end struktur;

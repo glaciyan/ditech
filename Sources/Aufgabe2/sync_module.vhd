@@ -84,6 +84,10 @@ begin
             reg <= (OTHERS => '0');
         elsif rising_edge(clk) then
             reg <= ('0' & reg(14 DOWNTO 0)) + 1;
+            
+            if swrst = RSTDEF then
+                reg <= (OTHERS => '0');
+            end if;
         end if;
     end process p1;
 

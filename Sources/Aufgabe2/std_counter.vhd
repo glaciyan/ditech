@@ -44,6 +44,9 @@ END std_counter;
 --
 architecture struktur of std_counter is
     SIGNAL cnt: std_logic_vector(CNTLEN DOWNTO 0); -- carry + dout
+    SIGNAL load_number: std_logic;
+    SIGNAL inc_number: std_logic;
+    SIGNAL dec_number: std_logic;
 begin
 
 cout <= cnt(CNTLEN);
@@ -53,19 +56,28 @@ p1: process(clk, rst)
 begin
     if rst = RSTDEF then
         cnt <= (OTHERS => '0');
+        load_number <= '0';
+        inc_number <= '0';
+        dec_number <= '0';
     elsif rising_edge(clk) then
         if en = '1' then
-            if load = '1' then
+            load_number <= load;
+            inc_number <= inc;
+            dec_number <= dec;
+            if load_number = '1' then
                 cnt <= '0' & din;
-            elsif dec = '1' then
+            elsif dec_number = '1' then
                 cnt <= ('0' & cnt(CNTLEN-1 DOWNTO 0)) - 1;
-            elsif inc = '1' then
+            elsif inc_number = '1' then
                 cnt <= ('0' & cnt(CNTLEN-1 DOWNTO 0)) + 1;
             end if;
         end if;
 
         if swrst = RSTDEF then
             cnt <= (OTHERS => '0');
+            load_number <= '0';
+            inc_number <= '0';
+            dec_number <= '0';
         end if;
     end if;
 end process;

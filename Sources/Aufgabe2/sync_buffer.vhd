@@ -21,21 +21,20 @@ END sync_buffer;
 --
 
 ARCHITECTURE struktur OF sync_buffer IS
-    TYPE TState IS (S0, S1);
+    -- TYPE TState IS (S0, S1);
 
     SIGNAL dff1: std_logic;
     SIGNAL dff2: std_logic;
 
-    SIGNAL state: TState;
-    SIGNAL tdout_res: std_logic;
+    SIGNAL state: std_logic;
     SIGNAL tdout: std_logic;
-    CONSTANT N: natural := 7;
+    CONSTANT N: natural := 15;
     SIGNAL cnt: integer RANGE 0 TO N;
 BEGIN
 
-dout <= tdout_res;
-redge <= tdout_res AND (NOT tdout);
-fedge <= (NOT tdout_res) AND tdout;
+dout <= tdout;
+redge <= tdout AND (NOT state);
+fedge <= (NOT tdout) AND state;
 
 p1: process(clk, rst)
 begin
@@ -43,60 +42,56 @@ begin
         dff1 <= '0';
         dff2 <= '0';
         tdout <= '0';
-        tdout_res <= '0';
-        state <= S0;
+        state <= '0';
         cnt <= 0;
     elsif rising_edge(clk) then
         -- Sync
         dff1 <= din;
         dff2 <= dff1;
 
-        tdout_res <= tdout;
-        state <= S0;
-        
         -- Hysterese
         CASE state IS
-            WHEN S0 =>
+            WHEN '0' =>
                 IF dff2 = '0' THEN
                     IF cnt = 0 THEN
-                        state <= S0;
+                        state <= '0';
                         -- cnt
                         tdout <= '0';
                     ELSE
-                        state <= S0;
+                        state <= '0';
                         cnt <= cnt - 1;
                         tdout <= '0';
                     END IF;
                 ELSE
-                    IF cnt = (N - 1) THEN
-                        state <= S1;
+                    IF cnt = N THEN
+                        state <= '1';
                         -- cnt
                         tdout <= '0';
                     ELSE
-                        state <= S0;
+                        state <= '0';
                         cnt <= cnt + 1;
                         tdout <= '0';
                     END IF;
                 END IF;
                 
-            WHEN S1 =>
+            WHEN '1' =>
                 IF dff2 = '1' THEN
-                    IF cnt = (N - 1) THEN
-                        state <= S1;
+                    IF cnt = N THEN
+                        state <= '1';
                         
                         tdout <= '1';
                     ELSE
-                        state <= S1;
+                        state <= '1';
                         cnt <= cnt + 1;
                         tdout <= '1';
                     END IF;
                 ELSE
                     IF cnt = 0 THEN
-                        state <= S0;
+                        state <= '0';
                         -- cnt
                         tdout <= '1';
                     ELSE
-                        state <= S1;
+                        state <= '1';
                         cnt <= cnt - 1;
                         tdout <= '1';
                     END IF;
@@ -107,8 +102,7 @@ begin
             dff1 <= '0';
             dff2 <= '0';
             tdout <= '0';
-            tdout_res <= '0';
-            state <= S0;
+            state <= '0';
             cnt <= 0;
         END IF;
 

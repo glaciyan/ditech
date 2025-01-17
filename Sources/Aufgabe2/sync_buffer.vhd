@@ -29,7 +29,7 @@ ARCHITECTURE struktur OF sync_buffer IS
     SIGNAL state: TState;
     SIGNAL tdout_res: std_logic;
     SIGNAL tdout: std_logic;
-    CONSTANT N: natural := 15;
+    CONSTANT N: natural := 7;
     SIGNAL cnt: integer RANGE 0 TO N;
 BEGIN
 

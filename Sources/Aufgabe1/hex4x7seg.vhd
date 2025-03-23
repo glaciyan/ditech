@@ -16,7 +16,12 @@ ENTITY hex4x7seg IS
 END hex4x7seg;
 
 ARCHITECTURE struktur OF hex4x7seg IS
-    SIGNAL reg: std_logic_vector(14 DOWNTO 0);
+    -- x^14 + x^10 + x^6 + x^1 + 1
+    CONSTANT POLY: std_logic_vector := "100010001000011";
+
+    SIGNAL reg: std_logic_vector(13 DOWNTO 0);
+
+    SIGNAL en: std_logic;
 
     CONSTANT N: natural := 4;
     SIGNAL cnt: std_logic_vector(0 TO 1);
@@ -72,10 +77,30 @@ dp <= (dpin(0) and cc(3)) or
 p1: PROCESS (rst, clk) IS
 BEGIN
     IF rst=RSTDEF THEN
-        reg <= (OTHERS => '0');
+        reg <= (OTHERS => '1');
+        en <= '0';
     ELSIF rising_edge(clk) THEN
         -- Modulo 2^14 Zaehler
-        reg <= ('0' & reg(13 DOWNTO 0)) + 1;
+        -- x^14 + x^10 + x^6 + x^1 + 1
+        reg <= lfsr(arg => reg, poly => POLY, din => '0');
+
+        -- 11110111011110
+        -- Benutze den EN Pin. Stelle sicher, dass nach dem ruecksetzen
+        -- diese bedingung nach einem Schtritt erfuellt ist.
+        IF reg(13) = '1' and reg(2) = '1' THEN
+            -- Manuelle logik-kette war schneller als logic_vectors zu vergleichen.
+            IF (reg(12) and reg(11) and not reg(9) and not reg(5)) = '1' THEN
+                IF ((reg(10) and reg(8) and reg(7) and reg(6))
+                  and (reg(4) and reg(3) and not reg(0) and reg(1))) = '1' THEN
+                    en <= '1';
+                    reg <= (OTHERS => '1');
+                ELSE
+                    en <= '0';
+                END IF;
+            ELSE
+                en <= '0';
+            END IF;
+        END IF;
     END IF;
 END PROCESS;
 
@@ -85,7 +110,7 @@ BEGIN
     IF rst=RSTDEF THEN
         cnt <= (OTHERS => '0');
     ELSIF rising_edge(clk) THEN
-        IF reg(14) = '1' THEN
+        IF en = '1' THEN
             -- gray code counter
             CASE cnt IS
                 WHEN "00" =>
